@@ -59,6 +59,12 @@
                 <version>3.5.1</version>
                 <configuration>
                     <minimizeJar>true</minimizeJar>
+                    <artifactSet>
+                        <includes>
+                            <include>org.bstats:bstats-bukkit</include>
+                            <include>com.github.slimefunguguproject:AdvancementAPI</include>
+                        </includes>
+                    </artifactSet>
                     <relocations>
                         <relocation>
                             <pattern>org.bstats</pattern>
@@ -90,6 +96,7 @@
                     </execution>
                 </executions>
             </plugin>
+
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
