@@ -5,6 +5,7 @@ api-version: 1.14
 depend: [ Slimefun ]
 softdepend: [ GuizhanLibPlugin ]
 authors: [ char321 ]
+folia-supported: true
 
 commands:
   sfadvancements:

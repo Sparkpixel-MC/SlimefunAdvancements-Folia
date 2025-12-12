@@ -7,7 +7,7 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.inventory.ItemStack;
 
 public class BlockBreakCriterion extends Criterion {
-    private ItemStack item;
+    private final ItemStack item;
 
     public static BlockBreakCriterion loadFromConfig(ConfigurationSection config) {
         String id = config.getName();

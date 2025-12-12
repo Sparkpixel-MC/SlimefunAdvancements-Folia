@@ -11,11 +11,7 @@ import org.bukkit.entity.Player;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Deque;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class SearchCriterionCompleter implements CriterionCompleter {
     private final Map<String, List<SearchCriterion>> criteria = new HashMap<>();

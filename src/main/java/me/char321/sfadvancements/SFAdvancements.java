@@ -16,15 +16,13 @@ import me.char321.sfadvancements.core.tasks.AutoSaveTask;
 import me.char321.sfadvancements.util.ConfigUtils;
 import me.char321.sfadvancements.util.Utils;
 import me.char321.sfadvancements.vanilla.VanillaHook;
-import net.guizhanss.guizhanlibplugin.updater.GuizhanUpdater;
+import net.guizhanss.guizhanlib.updater.GuizhanBuildsUpdater;
 import org.bstats.bukkit.Metrics;
 import org.bstats.charts.SimplePie;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.plugin.java.JavaPluginLoader;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -48,11 +46,7 @@ public final class SFAdvancements extends JavaPlugin implements SlimefunAddon {
     private boolean multiBlockCraftEvent = false;
 
     public SFAdvancements() {
-
-    }
-
-    public SFAdvancements(JavaPluginLoader loader, PluginDescriptionFile description, File dataFolder, File file) {
-        super(loader, description, dataFolder, file);
+        super();
         testing = true;
     }
 
@@ -86,7 +80,10 @@ public final class SFAdvancements extends JavaPlugin implements SlimefunAddon {
         CriteriaTypes.loadDefaultCriteria();
 
         info("启动自动保存任务...");
-        Bukkit.getScheduler().runTaskTimerAsynchronously(this, new AutoSaveTask(), 6000L, 6000L);
+        Bukkit.getGlobalRegionScheduler().runAtFixedRate(this, (task) -> {
+            new AutoSaveTask().run();
+        }, 6000L, 6000L);
+
 
         if (!testing) {
             Metrics metrics = new Metrics(this, 14130);
@@ -110,7 +107,7 @@ public final class SFAdvancements extends JavaPlugin implements SlimefunAddon {
 
     @Override
     public void onDisable() {
-        Bukkit.getScheduler().cancelTasks(this);
+        Bukkit.getGlobalRegionScheduler().cancelTasks(this);
         try {
             advManager.save();
         } catch (IOException e) {
@@ -130,7 +127,7 @@ public final class SFAdvancements extends JavaPlugin implements SlimefunAddon {
     private void autoUpdate() {
         if (config.getBoolean("auto-update") && getDescription().getVersion().startsWith("Build")) {
             info("正在检查更新...");
-            GuizhanUpdater.start(this, this.getFile(), "SlimefunGuguProject", "SlimefunAdvancements", "main");
+            GuizhanBuildsUpdater.start(this, this.getFile(), "SlimefunGuguProject", "SlimefunAdvancements", "main");
         }
     }
 

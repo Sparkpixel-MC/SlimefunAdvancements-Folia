@@ -24,6 +24,11 @@
         </repository>
 
         <repository>
+            <id>menthamc</id>
+            <url>https://repo.menthamc.org/repository/maven-public/</url>
+        </repository>
+
+        <repository>
             <id>sonatype</id>
             <url>https://oss.sonatype.org/content/groups/public/</url>
         </repository>
@@ -130,10 +135,9 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.spigotmc</groupId>
-            <artifactId>spigot-api</artifactId>
-            <version>1.18.1-R0.1-SNAPSHOT</version>
-            <scope>provided</scope>
+            <groupId>me.earthme.luminol</groupId>
+            <artifactId>luminol-api</artifactId>
+            <version>1.21.8-R0.1-SNAPSHOT</version>
         </dependency>
 
         <dependency>

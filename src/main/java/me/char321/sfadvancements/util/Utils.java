@@ -24,15 +24,14 @@ public class Utils {
     public static ItemStack makeShiny(ItemStack item) {
         item = item.clone();
         ItemMeta im = item.getItemMeta();
-        //noinspection DataFlowIssue
-        im.addEnchant(Enchantment.DURABILITY, 1, false);
+        im.addEnchant(Enchantment.UNBREAKING, 1, false);
         im.addItemFlags(ItemFlag.HIDE_ENCHANTS);
         item.setItemMeta(im);
         return item;
     }
 
     public static void makeShiny(ItemMeta im) {
-        im.addEnchant(Enchantment.DURABILITY, 1, false);
+        im.addEnchant(Enchantment.UNBREAKING, 1, false);
         im.addItemFlags(ItemFlag.HIDE_ENCHANTS);
     }
 
@@ -86,10 +85,10 @@ public class Utils {
     }
 
     public static void runSync(Runnable runnable) {
-        Bukkit.getScheduler().runTask(SFAdvancements.instance(), runnable);
+        Bukkit.getGlobalRegionScheduler().run(SFAdvancements.instance(), (task) -> runnable.run());
     }
 
     public static void runLater(Runnable runnable, long delay) {
-        Bukkit.getScheduler().runTaskLater(SFAdvancements.instance(), runnable, delay);
+        Bukkit.getGlobalRegionScheduler().runDelayed(SFAdvancements.instance(), (task) -> runnable.run(), delay);
     }
 }
