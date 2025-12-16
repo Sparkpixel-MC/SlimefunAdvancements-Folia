@@ -49,19 +49,19 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.8.1</version>
                 <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
+                    <source>21</source>
+                    <target>21</target>
                 </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
-                <version>3.5.1</version>
+                <version>3.6.1</version>
                 <configuration>
-                    <minimizeJar>true</minimizeJar>
                     <artifactSet>
                         <includes>
                             <include>org.bstats:bstats-bukkit</include>
+                            <include>org.bstats:bstats-base</include>
                             <include>com.github.slimefunguguproject:AdvancementAPI</include>
                         </includes>
                     </artifactSet>
@@ -164,6 +164,13 @@
             <groupId>com.github.slimefunguguproject</groupId>
             <artifactId>AdvancementAPI</artifactId>
             <version>3a2ece1ace</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.bstats</groupId>
+            <artifactId>bstats-base</artifactId>
+            <version>2.2.1</version>
             <scope>compile</scope>
         </dependency>
 
