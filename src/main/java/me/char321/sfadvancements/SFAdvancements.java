@@ -101,7 +101,7 @@ public final class SFAdvancements extends JavaPlugin implements SlimefunAddon {
             if (!testing && config.getBoolean("use-advancements-api")) {
                 vanillaHook.init();
             }
-        }, 0L);
+        }, 1L);
 
     }
 
