@@ -30,7 +30,7 @@ public class SearchCriterionCompleter implements CriterionCompleter {
             return;
         }
 
-        Bukkit.getScheduler().runTaskTimer(SFAdvancements.instance(), () -> {
+        Bukkit.getGlobalRegionScheduler().runAtFixedRate(SFAdvancements.instance(), scheduledTask -> {
             for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
                 PlayerProfile.get(onlinePlayer, profile -> {
                     try {
