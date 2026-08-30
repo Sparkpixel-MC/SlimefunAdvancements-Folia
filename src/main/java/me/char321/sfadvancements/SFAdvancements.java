@@ -16,7 +16,7 @@ import me.char321.sfadvancements.core.tasks.AutoSaveTask;
 import me.char321.sfadvancements.util.ConfigUtils;
 import me.char321.sfadvancements.util.Utils;
 import me.char321.sfadvancements.vanilla.VanillaHook;
-import net.guizhanss.guizhanlib.updater.GuizhanBuildsUpdater;
+import net.guizhanss.minecraft.guizhanlib.updater.GuizhanUpdater;
 import org.bstats.bukkit.Metrics;
 import org.bstats.charts.SimplePie;
 import org.bukkit.Bukkit;
@@ -42,12 +42,9 @@ public final class SFAdvancements extends JavaPlugin implements SlimefunAddon {
     private YamlConfiguration advancementConfig;
     private YamlConfiguration groupConfig;
 
-    private boolean testing = false;
     private boolean multiBlockCraftEvent = false;
 
     public SFAdvancements() {
-        super();
-        testing = true;
     }
 
     @Override
@@ -85,12 +82,11 @@ public final class SFAdvancements extends JavaPlugin implements SlimefunAddon {
         }, 6000L, 6000L);
 
 
-        if (!testing) {
-            Metrics metrics = new Metrics(this, 14130);
-            metrics.addCustomChart(new SimplePie("AdvancementAPI enabled", () -> config.getBoolean("use-advancements-api") ? "true" : "false"));
-        }
+        Metrics metrics = new Metrics(this, 14130);
+        metrics.addCustomChart(new SimplePie("AdvancementAPI enabled",
+                () -> config.getBoolean("use-advancements-api") ? "true" : "false"));
 
-        //allow other plugins to register their criteria completers
+        // allow other plugins to register their criteria completers
         info("等待服务器启动中...");
         Utils.runLater(() -> {
             info("正在从配置文件中加载进度组...");
@@ -98,7 +94,7 @@ public final class SFAdvancements extends JavaPlugin implements SlimefunAddon {
             info("正在从配置文件中加载进度...");
             loadAdvancements();
 
-            if (!testing && config.getBoolean("use-advancements-api")) {
+            if (config.getBoolean("use-advancements-api")) {
                 vanillaHook.init();
             }
         }, 1L);
@@ -127,7 +123,7 @@ public final class SFAdvancements extends JavaPlugin implements SlimefunAddon {
     private void autoUpdate() {
         if (config.getBoolean("auto-update") && getDescription().getVersion().startsWith("Build")) {
             info("正在检查更新...");
-            GuizhanBuildsUpdater.start(this, this.getFile(), "SlimefunGuguProject", "SlimefunAdvancements", "main");
+            GuizhanUpdater.start(this, this.getFile(), "SlimefunGuguProject", "SlimefunAdvancements", "main");
         }
     }
 
@@ -141,7 +137,7 @@ public final class SFAdvancements extends JavaPlugin implements SlimefunAddon {
         loadGroups();
         loadAdvancements();
 
-        if (!testing && config.getBoolean("use-advancements-api")) {
+        if (config.getBoolean("use-advancements-api")) {
             vanillaHook.reload();
         }
     }
@@ -153,7 +149,7 @@ public final class SFAdvancements extends JavaPlugin implements SlimefunAddon {
         }
         groupConfig = YamlConfiguration.loadConfiguration(groupFile);
         for (String key : groupConfig.getKeys(false)) {
-            String background = groupConfig.getString(key + ".background", "BEDROCK");
+            String background = groupConfig.getString(key + ".background", "SLIME_BLOCK");
             ItemStack display = ConfigUtils.getItem(groupConfig, key + ".display");
             String frameType = groupConfig.getString(key + ".frame_type", "GOAL");
             AdvancementGroup group = new AdvancementGroup(key, display, frameType, background);
@@ -168,7 +164,8 @@ public final class SFAdvancements extends JavaPlugin implements SlimefunAddon {
         }
         advancementConfig = YamlConfiguration.loadConfiguration(advancementsFile);
         for (String key : advancementConfig.getKeys(false)) {
-            AdvancementBuilder builder = AdvancementBuilder.loadFromConfig(key, advancementConfig.getConfigurationSection(key));
+            AdvancementBuilder builder = AdvancementBuilder.loadFromConfig(key,
+                    advancementConfig.getConfigurationSection(key));
             if (builder != null) {
                 builder.register();
             }
@@ -217,10 +214,6 @@ public final class SFAdvancements extends JavaPlugin implements SlimefunAddon {
 
     public YamlConfiguration getGroupsConfig() {
         return groupConfig;
-    }
-
-    public boolean isTesting() {
-        return testing;
     }
 
     public boolean isMultiBlockCraftEvent() {

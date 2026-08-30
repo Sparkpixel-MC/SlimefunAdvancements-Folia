@@ -1,5 +1,7 @@
 package me.char321.sfadvancements.core.criteria.completer;
 
+import com.balugaq.jeg.api.patches.JEGGuideEntry;
+import com.balugaq.jeg.api.patches.JEGGuideHistory;
 import io.github.thebusybiscuit.slimefun4.api.player.PlayerProfile;
 import io.github.thebusybiscuit.slimefun4.core.guide.GuideHistory;
 import me.char321.sfadvancements.SFAdvancements;
@@ -14,8 +16,18 @@ import java.lang.reflect.Method;
 import java.util.*;
 
 public class SearchCriterionCompleter implements CriterionCompleter {
-    private final Map<String, List<SearchCriterion>> criteria = new HashMap<>();
+    private static boolean jegSupported;
 
+    static {
+        try {
+            Class.forName("com.balugaq.jeg.api.patches.JEGGuideHistory");
+            jegSupported = true;
+        } catch (ClassNotFoundException e) {
+            jegSupported = false;
+        }
+    }
+
+    private final Map<String, List<SearchCriterion>> criteria = new HashMap<>();
 
     public SearchCriterionCompleter() {
         Field queueField;
@@ -33,16 +45,28 @@ public class SearchCriterionCompleter implements CriterionCompleter {
         Bukkit.getGlobalRegionScheduler().runAtFixedRate(SFAdvancements.instance(), scheduledTask -> {
             for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
                 PlayerProfile.get(onlinePlayer, profile -> {
-                    try {
-                        Deque<?> queue = (Deque<?>) queueField.get(profile.getGuideHistory());
-                        if (!queue.isEmpty()) {
-                            Object str = getIndexedObject.invoke(queue.getLast());
-                            if (str instanceof String) {
-                                Utils.runSync(() -> onSearch(onlinePlayer, (String)str));
+                    // 由于未知情况，两次 profile.getGuideHistory() 可能会获取不同的结果导致 ClassCastException
+                    // 故仅获取一次，以避免报错
+                    GuideHistory history = profile.getGuideHistory();
+                    if (jegSupported) {
+                        if (history instanceof JEGGuideHistory jeg) {
+                            var entry = jeg.getLastEntry(false);
+                            if (entry instanceof JEGGuideEntry.SearchTermEntry searchTermEntry) {
+                                Utils.runSync(() -> onSearch(onlinePlayer, searchTermEntry.get()));
                             }
                         }
-                    } catch (ReflectiveOperationException e) {
-                        e.printStackTrace();
+                    } else {
+                        try {
+                            Deque<?> queue = (Deque<?>) queueField.get(history);
+                            if (!queue.isEmpty()) {
+                                Object str = getIndexedObject.invoke(queue.getLast());
+                                if (str instanceof String) {
+                                    Utils.runSync(() -> onSearch(onlinePlayer, (String) str));
+                                }
+                            }
+                        } catch (ReflectiveOperationException e) {
+                            e.printStackTrace();
+                        }
                     }
                 });
             }
