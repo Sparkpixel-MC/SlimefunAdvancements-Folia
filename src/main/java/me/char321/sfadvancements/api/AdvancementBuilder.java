@@ -22,6 +22,7 @@ public class AdvancementBuilder {
     private ItemStack display;
     private String frame;
     private String name;
+    private String description;
     private boolean hidden;
     private List<Criterion> criteria = new ArrayList<>();
     private List<Reward> rewards = new ArrayList<>();
@@ -64,6 +65,19 @@ public class AdvancementBuilder {
             advname = key;
         }
         builder.name(advname);
+
+        // description accepts either a single string or a list of lines
+        if (config.isList("description")) {
+            List<String> lines = config.getStringList("description");
+            if (!lines.isEmpty()) {
+                builder.description(String.join("\n", lines));
+            }
+        } else {
+            String desc = config.getString("description");
+            if (desc != null && !desc.isEmpty()) {
+                builder.description(desc);
+            }
+        }
 
         boolean hidden = config.getBoolean("hidden");
         if (!hidden) {
@@ -169,6 +183,11 @@ public class AdvancementBuilder {
         return this;
     }
 
+    public AdvancementBuilder description(String description) {
+        this.description = description;
+        return this;
+    }
+
     public AdvancementBuilder hidden(boolean hidden) {
         this.hidden = hidden;
         return this;
@@ -189,7 +208,7 @@ public class AdvancementBuilder {
             criterion.setAdvancement(key);
             criterion.register();
         }
-        Advancement adv = new Advancement(key, parent, group, display, frame, name, hidden, criteria.toArray(new Criterion[0]), rewards.toArray(new Reward[0]));
+        Advancement adv = new Advancement(key, parent, group, display, frame, name, description, hidden, criteria.toArray(new Criterion[0]), rewards.toArray(new Reward[0]));
         adv.register();
     }
 

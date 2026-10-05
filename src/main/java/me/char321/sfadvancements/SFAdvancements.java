@@ -24,6 +24,7 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.File;
@@ -77,9 +78,7 @@ public final class SFAdvancements extends JavaPlugin implements SlimefunAddon {
         CriteriaTypes.loadDefaultCriteria();
 
         info("启动自动保存任务...");
-        Bukkit.getGlobalRegionScheduler().runAtFixedRate(this, (task) -> {
-            new AutoSaveTask().run();
-        }, 6000L, 6000L);
+        Utils.runAsyncAtFixedRate(() -> new AutoSaveTask().run(), 6000L, 6000L);
 
 
         Metrics metrics = new Metrics(this, 14130);
@@ -104,11 +103,14 @@ public final class SFAdvancements extends JavaPlugin implements SlimefunAddon {
     @Override
     public void onDisable() {
         Bukkit.getGlobalRegionScheduler().cancelTasks(this);
+        Bukkit.getAsyncScheduler().cancelTasks(this);
         try {
             advManager.save();
         } catch (IOException e) {
             getLogger().log(Level.SEVERE, e, () -> "无法保存进度");
         }
+        guiManager.clear();
+        instance = null;
     }
 
     private void detectCapabilities() {

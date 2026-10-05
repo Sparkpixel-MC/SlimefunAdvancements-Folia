@@ -7,17 +7,17 @@ import me.char321.sfadvancements.core.criteria.completer.CriterionCompleter;
 import org.bukkit.NamespacedKey;
 import org.bukkit.configuration.ConfigurationSection;
 
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
 public class AdvancementsRegistry {
-    private final List<AdvancementGroup> advancementGroups = new ArrayList<>();
-    private final Map<NamespacedKey, Advancement> advancements = new HashMap<>();
-    private final Map<Class<? extends Criterion>, CriterionCompleter> completers = new HashMap<>();
-    private final Map<String, Function<ConfigurationSection, Criterion>> criteriontypes = new HashMap<>();
+    private final List<AdvancementGroup> advancementGroups = new CopyOnWriteArrayList<>();
+    private final Map<NamespacedKey, Advancement> advancements = new ConcurrentHashMap<>();
+    private final Map<Class<? extends Criterion>, CriterionCompleter> completers = new ConcurrentHashMap<>();
+    private final Map<String, Function<ConfigurationSection, Criterion>> criteriontypes = new ConcurrentHashMap<>();
 
     public List<AdvancementGroup> getAdvancementGroups() {
         return advancementGroups;

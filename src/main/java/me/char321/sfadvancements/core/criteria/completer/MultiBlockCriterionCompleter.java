@@ -9,13 +9,13 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class MultiBlockCriterionCompleter implements CriterionCompleter, Listener {
-    private final Map<String, Set<MultiBlockCriterion>> criteria = new HashMap<>();
+    private final Map<String, Set<MultiBlockCriterion>> criteria = new ConcurrentHashMap<>();
 
     public MultiBlockCriterionCompleter() {
         Bukkit.getPluginManager().registerEvents(this, SFAdvancements.instance());
@@ -40,7 +40,7 @@ public class MultiBlockCriterionCompleter implements CriterionCompleter, Listene
 
         MultiBlockCriterion criterion1 = (MultiBlockCriterion) criterion;
         String machine = criterion1.getMachineId();
-        criteria.computeIfAbsent(machine, k -> new HashSet<>()).add(criterion1);
+        criteria.computeIfAbsent(machine, k -> ConcurrentHashMap.newKeySet()).add(criterion1);
     }
 
     @Override

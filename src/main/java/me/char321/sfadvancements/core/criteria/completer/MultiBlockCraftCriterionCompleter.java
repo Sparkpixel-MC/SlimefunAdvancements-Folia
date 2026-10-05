@@ -13,14 +13,14 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.EnumMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class MultiBlockCraftCriterionCompleter implements CriterionCompleter, Listener {
-    private final Map<Material, Set<MultiBlockCraftCriterion>> criteria = new EnumMap<>(Material.class);
-    private final Set<MultiBlockCraftCriterion> nonMaterialCriteria = new HashSet<>();
+    private final Map<Material, Set<MultiBlockCraftCriterion>> criteria = new ConcurrentHashMap<>();
+    private final Set<MultiBlockCraftCriterion> nonMaterialCriteria = ConcurrentHashMap.newKeySet();
 
     public MultiBlockCraftCriterionCompleter() {
         Bukkit.getPluginManager().registerEvents(this, SFAdvancements.instance());
@@ -64,7 +64,7 @@ public class MultiBlockCraftCriterionCompleter implements CriterionCompleter, Li
         if (item == null) {
             nonMaterialCriteria.add(criterion1);
         } else {
-            criteria.computeIfAbsent(item.getType(), k -> new HashSet<>()).add(criterion1);
+            criteria.computeIfAbsent(item.getType(), k -> ConcurrentHashMap.newKeySet()).add(criterion1);
         }
     }
 

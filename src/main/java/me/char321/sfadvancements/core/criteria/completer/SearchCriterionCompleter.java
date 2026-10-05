@@ -14,6 +14,8 @@ import org.bukkit.entity.Player;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class SearchCriterionCompleter implements CriterionCompleter {
     private static boolean jegSupported;
@@ -27,7 +29,7 @@ public class SearchCriterionCompleter implements CriterionCompleter {
         }
     }
 
-    private final Map<String, List<SearchCriterion>> criteria = new HashMap<>();
+    private final Map<String, List<SearchCriterion>> criteria = new ConcurrentHashMap<>();
 
     public SearchCriterionCompleter() {
         Field queueField;
@@ -42,7 +44,7 @@ public class SearchCriterionCompleter implements CriterionCompleter {
             return;
         }
 
-        Bukkit.getGlobalRegionScheduler().runAtFixedRate(SFAdvancements.instance(), scheduledTask -> {
+        Utils.runSyncAtFixedRate(() -> {
             for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
                 PlayerProfile.get(onlinePlayer, profile -> {
                     // 由于未知情况，两次 profile.getGuideHistory() 可能会获取不同的结果导致 ClassCastException
@@ -89,7 +91,7 @@ public class SearchCriterionCompleter implements CriterionCompleter {
         }
 
         SearchCriterion criterion1 = (SearchCriterion) criterion;
-        criteria.computeIfAbsent(criterion1.getSearch(), k -> new ArrayList<>()).add(criterion1);
+        criteria.computeIfAbsent(criterion1.getSearch(), k -> new CopyOnWriteArrayList<>()).add(criterion1);
     }
 
     @Override

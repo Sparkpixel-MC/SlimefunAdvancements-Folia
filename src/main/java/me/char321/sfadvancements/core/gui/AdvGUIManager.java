@@ -5,13 +5,15 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class AdvGUIManager implements Listener {
-    private final Map<UUID, OpenGUI> guis = new HashMap<>();
+    // click events run on each player's region thread under Folia
+    private final Map<UUID, OpenGUI> guis = new ConcurrentHashMap<>();
 
     public void displayGUI(Player p) {
         OpenGUI gui = getByPlayer(p);
@@ -24,8 +26,15 @@ public class AdvGUIManager implements Listener {
         OpenGUI openGUI = getByPlayer(player);
         if (e.getInventory().equals(openGUI.getInventory())) {
             e.setCancelled(true);
-            Utils.runSync(() -> openGUI.click(player, e.getRawSlot()));
+            int rawSlot = e.getRawSlot();
+            // the GUI state (and the inventory) belongs to the player's region
+            Utils.runAtEntity(player, () -> openGUI.click(player, rawSlot));
         }
+    }
+
+    @EventHandler
+    public void onQuit(PlayerQuitEvent e) {
+        guis.remove(e.getPlayer().getUniqueId());
     }
 
     public OpenGUI getByPlayer(Player p) {
@@ -43,5 +52,9 @@ public class AdvGUIManager implements Listener {
     public boolean isOpen(Player p) {
         OpenGUI openGUI = getByPlayer(p);
         return p.getOpenInventory().getTopInventory().equals(openGUI.getInventory());
+    }
+
+    public void clear() {
+        guis.clear();
     }
 }

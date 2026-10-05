@@ -12,13 +12,13 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.EnumMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class ConsumeCriterionCompleter implements CriterionCompleter, Listener {
-    private final Map<Material, Set<ConsumeCriterion>> criteria = new EnumMap<>(Material.class);
+    private final Map<Material, Set<ConsumeCriterion>> criteria = new ConcurrentHashMap<>();
 
     public ConsumeCriterionCompleter() {
         Bukkit.getPluginManager().registerEvents(this, SFAdvancements.instance());
@@ -47,7 +47,7 @@ public class ConsumeCriterionCompleter implements CriterionCompleter, Listener {
 
         ConsumeCriterion criterion1 = (ConsumeCriterion) criterion;
         Material m = criterion1.getItem().getType();
-        criteria.computeIfAbsent(m, k -> new HashSet<>()).add(criterion1);
+        criteria.computeIfAbsent(m, k -> ConcurrentHashMap.newKeySet()).add(criterion1);
     }
 
     @Override

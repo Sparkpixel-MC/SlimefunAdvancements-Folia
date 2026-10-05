@@ -12,13 +12,13 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.EnumMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class InteractCriterionCompleter implements Listener, CriterionCompleter {
-    private final Map<Material, Set<InteractCriterion>> criteria = new EnumMap<>(Material.class);
+    private final Map<Material, Set<InteractCriterion>> criteria = new ConcurrentHashMap<>();
 
     public InteractCriterionCompleter() {
         Bukkit.getPluginManager().registerEvents(this, SFAdvancements.instance());
@@ -47,7 +47,7 @@ public class InteractCriterionCompleter implements Listener, CriterionCompleter 
 
         InteractCriterion criterion1 = (InteractCriterion) criterion;
         Material m = criterion1.getItem().getType();
-        criteria.computeIfAbsent(m, k -> new HashSet<>()).add(criterion1);
+        criteria.computeIfAbsent(m, k -> ConcurrentHashMap.newKeySet()).add(criterion1);
     }
 
     @Override

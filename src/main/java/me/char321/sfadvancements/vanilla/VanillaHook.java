@@ -147,7 +147,10 @@ public class VanillaHook {
         JsonElement titleComponent = meta != null && meta.hasDisplayName()
                 ? legacyToJson(meta.getDisplayName())
                 : componentToJson(Utils.getItemName(item));
-        String description = getDescriptionFor(meta != null ? meta.getLore() : null, advancement);
+        // a description set in advancements.yml wins over one derived from the display item's lore
+        String description = advancement.hasCustomDescription()
+                ? advancement.getDescription()
+                : getDescriptionFor(meta != null ? meta.getLore() : null, advancement);
         JsonObject json = buildAdvancementJson(
                 parentKey,
                 item,
@@ -679,7 +682,8 @@ public class VanillaHook {
             SFAdvancements.warn("尝试完成未注册的成就 " + key);
             return;
         }
-        Utils.runSync(() -> {
+        // advancement progress is player-owned state; touch it in the player's scheduler context
+        Utils.runAtEntity(p, () -> {
             AdvancementProgress progress = p.getAdvancementProgress(advancement);
             if (!progress.isDone()) {
                 progress.awardCriteria("impossible");
@@ -693,7 +697,7 @@ public class VanillaHook {
             SFAdvancements.warn("尝试撤销未注册的成就 " + key);
             return;
         }
-        Utils.runSync(() -> {
+        Utils.runAtEntity(p, () -> {
             AdvancementProgress progress = p.getAdvancementProgress(advancement);
             if (progress.isDone()) {
                 progress.revokeCriteria("impossible");

@@ -1,0 +1,17 @@
+[versions]
+foliaApi = "26.2.build.7-beta"
+slimefun4 = "2025.1.2"
+justEnoughGuide = "67995bd0f9"
+guizhanLibPlugin = "2.5.0"
+bstats = "3.2.1"
+shadow = "9.6.1"
+
+[libraries]
+folia-api = { module = "dev.folia:folia-api", version.ref = "foliaApi" }
+slimefun4 = { module = "com.github.SlimefunGuguProject:Slimefun4", version.ref = "slimefun4" }
+just-enough-guide = { module = "com.github.balugaq:JustEnoughGuide", version.ref = "justEnoughGuide" }
+guizhan-lib-plugin = { module = "net.guizhanss:GuizhanLibPlugin", version.ref = "guizhanLibPlugin" }
+bstats-bukkit = { module = "org.bstats:bstats-bukkit", version.ref = "bstats" }
+
+[plugins]
+shadow = { id = "com.gradleup.shadow", version.ref = "shadow" }

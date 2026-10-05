@@ -14,13 +14,13 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class ResearchCriterionCompleter implements CriterionCompleter, Listener {
-    private final Map<NamespacedKey, Set<ResearchCriterion>> criteria = new HashMap<>();
+    private final Map<NamespacedKey, Set<ResearchCriterion>> criteria = new ConcurrentHashMap<>();
 
     public ResearchCriterionCompleter() {
         Bukkit.getPluginManager().registerEvents(this, SFAdvancements.instance());
@@ -60,7 +60,7 @@ public class ResearchCriterionCompleter implements CriterionCompleter, Listener 
 
         ResearchCriterion criterion1 = ((ResearchCriterion) criterion);
         NamespacedKey research = criterion1.getResearch();
-        criteria.computeIfAbsent(research, k -> new HashSet<>()).add(criterion1);
+        criteria.computeIfAbsent(research, k -> ConcurrentHashMap.newKeySet()).add(criterion1);
     }
 
     @Override

@@ -22,10 +22,12 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 
 /**
@@ -36,7 +38,8 @@ import java.util.logging.Level;
  */
 public class PlayerProgress {
     private final UUID player;
-    private final Map<NamespacedKey, AdvancementProgress> progressMap = new HashMap<>();
+    // criteria of the same advancement may be completed from different region threads at once
+    private final Map<NamespacedKey, AdvancementProgress> progressMap = new ConcurrentHashMap<>();
 
     private PlayerProgress(UUID player) {
         this.player = player;
@@ -64,10 +67,8 @@ public class PlayerProgress {
 
     public void doCriterion(Criterion criterion) {
         NamespacedKey adv = criterion.getAdvancement();
-        progressMap.computeIfAbsent(adv, AdvancementProgress::new);
-
-        AdvancementProgress advProgress = progressMap.get(adv);
-        if (advProgress.done) {
+        AdvancementProgress advProgress = progressMap.computeIfAbsent(adv, AdvancementProgress::new);
+        if (advProgress.done.get()) {
             return;
         }
 
@@ -76,12 +77,14 @@ public class PlayerProgress {
                 continue;
             }
 
-            if (progress.progress < criterion.getCount()) {
-                progress.progress++;
-                if (progress.progress >= criterion.getCount()) {
-                    progress.done = true;
-                    advProgress.updateDone();
-                }
+            if (progress.done.get()) {
+                continue;
+            }
+
+            int newProgress = progress.progress.updateAndGet(v -> Math.min(v + 1, criterion.getCount()));
+            if (newProgress >= criterion.getCount()) {
+                progress.done.set(true);
+                advProgress.checkComplete();
             }
         }
     }
@@ -95,13 +98,13 @@ public class PlayerProgress {
                 continue;
             }
 
-            if (criteriaProgress.done) {
+            if (criteriaProgress.done.get()) {
                 return;
             }
 
-            criteriaProgress.done = true;
-            criteriaProgress.progress = criterion.getCount();
-            progress.updateDone();
+            criteriaProgress.done.set(true);
+            criteriaProgress.progress.set(criterion.getCount());
+            progress.checkComplete();
         }
     }
 
@@ -114,7 +117,7 @@ public class PlayerProgress {
         AdvancementProgress advProgress = progressMap.get(adv);
         for (CriteriaProgress progress : advProgress.criteria) {
             if (progress.id.equals(cri.getId())) {
-                return progress.progress;
+                return progress.progress.get();
             }
         }
         throw new IllegalStateException();
@@ -124,19 +127,23 @@ public class PlayerProgress {
         if (!progressMap.containsKey(adv)) {
             return false;
         }
-        progressMap.get(adv).done = false;
-        for (CriteriaProgress progress : progressMap.get(adv).criteria) {
-            progress.done = false;
-            progress.progress = 0;
+        AdvancementProgress progress = progressMap.get(adv);
+        progress.done.set(false);
+        for (CriteriaProgress criteriaProgress : progress.criteria) {
+            criteriaProgress.done.set(false);
+            criteriaProgress.progress.set(0);
         }
-        Utils.fromKey(adv).revoke(Bukkit.getPlayer(player));
+        Player playerEntity = Bukkit.getPlayer(player);
+        if (playerEntity != null) {
+            Utils.fromKey(adv).revoke(playerEntity);
+        }
         return true;
     }
 
     public List<NamespacedKey> getCompletedAdvancements() {
         List<NamespacedKey> res = new ArrayList<>();
         for (Map.Entry<NamespacedKey, AdvancementProgress> entry : progressMap.entrySet()) {
-            if (entry.getValue().done) {
+            if (entry.getValue().done.get()) {
                 res.add(entry.getKey());
             }
         }
@@ -171,11 +178,11 @@ public class PlayerProgress {
             for (Map.Entry<NamespacedKey, AdvancementProgress> entry : progressMap.entrySet()) {
                 writer.name(entry.getKey().toString());
                 writer.beginObject();
-                writer.name("done").value(entry.getValue().done);
+                writer.name("done").value(entry.getValue().done.get());
                 writer.name("criteria");
                 writer.beginObject();
                 for (CriteriaProgress criterion : entry.getValue().criteria) {
-                    writer.name(criterion.id).value(criterion.progress);
+                    writer.name(criterion.id).value(criterion.progress.get());
                 }
                 writer.endObject();
                 writer.endObject();
@@ -195,12 +202,12 @@ public class PlayerProgress {
             return false;
         }
         AdvancementProgress prog = progressMap.get(key);
-        return prog.done;
+        return prog.done.get();
     }
 
     class AdvancementProgress {
         Advancement adv;
-        boolean done = false;
+        final AtomicBoolean done = new AtomicBoolean(false);
         CriteriaProgress[] criteria;
 
         AdvancementProgress(NamespacedKey adv) {
@@ -215,19 +222,28 @@ public class PlayerProgress {
             }
         }
 
-        void updateDone() {
+        /**
+         * marks the advancement complete if every criterion is done;
+         * the CAS guarantees onComplete (and its rewards) run exactly once
+         */
+        void checkComplete() {
             for (CriteriaProgress criterion : criteria) {
-                if (!criterion.done) {
+                if (!criterion.done.get()) {
                     return;
                 }
             }
-            this.done = true;
-
-            adv.onComplete(Bukkit.getPlayer(player));
+            if (done.compareAndSet(false, true)) {
+                Player p = Bukkit.getPlayer(player);
+                if (p == null) {
+                    SFAdvancements.warn("玩家 " + player + " 已离线，跳过进度奖励: " + adv.getKey());
+                    return;
+                }
+                adv.onComplete(p);
+            }
         }
 
         void loadFromObject(JsonObject object) {
-            done = object.get("done").getAsBoolean();
+            done.set(object.get("done").getAsBoolean());
             JsonObject jsonCriteria = object.get("criteria").getAsJsonObject();
             criteria = new CriteriaProgress[adv.getCriteria().length];
             int i = 0;
@@ -239,7 +255,7 @@ public class PlayerProgress {
                 } else {
                     int progress = element.getAsInt();
                     criteriaProgress = new CriteriaProgress(criterion.getId(), progress);
-                    criteriaProgress.done = progress >= criterion.getCount();
+                    criteriaProgress.done.set(progress >= criterion.getCount());
                 }
                 criteria[i] = criteriaProgress;
                 i++;
@@ -248,10 +264,9 @@ public class PlayerProgress {
     }
 
     static class CriteriaProgress {
-        String id;
-        boolean done = false;
-        //TODO make this easier to use so people can add their own criteria progress types like string
-        int progress;
+        final String id;
+        final AtomicBoolean done = new AtomicBoolean(false);
+        final AtomicInteger progress = new AtomicInteger(0);
 
         CriteriaProgress(String id) {
             this(id, 0);
@@ -259,7 +274,7 @@ public class PlayerProgress {
 
         CriteriaProgress(String id, int progress) {
             this.id = id;
-            this.progress = progress;
+            this.progress.set(progress);
         }
     }
 }

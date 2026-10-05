@@ -10,12 +10,14 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 
-import java.util.ArrayList;
-import java.util.EnumMap;
+import java.util.Map;
 import java.util.List;
+import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class BlockBreakCriterionCompleter implements CriterionCompleter, Listener {
-    EnumMap<Material, List<BlockBreakCriterion>> criteria = new EnumMap<>(Material.class);
+    Map<Material, List<BlockBreakCriterion>> criteria = new ConcurrentHashMap<>();
 
     public BlockBreakCriterionCompleter() {
         Utils.listen(this);
@@ -44,7 +46,7 @@ public class BlockBreakCriterionCompleter implements CriterionCompleter, Listene
         }
 
         BlockBreakCriterion criterion1 = (BlockBreakCriterion) criterion;
-        criteria.computeIfAbsent(criterion1.getItem().getType(), k -> new ArrayList<>()).add(criterion1);
+        criteria.computeIfAbsent(criterion1.getItem().getType(), k -> new CopyOnWriteArrayList<>()).add(criterion1);
     }
 
     @Override

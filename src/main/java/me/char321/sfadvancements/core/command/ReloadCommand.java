@@ -1,6 +1,7 @@
 package me.char321.sfadvancements.core.command;
 
 import me.char321.sfadvancements.SFAdvancements;
+import me.char321.sfadvancements.util.Utils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -27,12 +28,16 @@ public class ReloadCommand implements SubCommand {
         }
 
         for (Player player : Bukkit.getOnlinePlayers()) {
-            if (SFAdvancements.getGuiManager().isOpen(player)) {
-                player.closeInventory();
-            }
+            // closing an inventory touches the player's region-owned container state
+            Utils.runAtEntity(player, () -> {
+                if (SFAdvancements.getGuiManager().isOpen(player)) {
+                    player.closeInventory();
+                }
+            });
         }
 
-        SFAdvancements.instance().reload();
+        // reload rebuilds the global registry, run it on the global region
+        Utils.runSync(SFAdvancements.instance()::reload);
 
         sender.sendMessage("已成功重载配置！");
         return true;

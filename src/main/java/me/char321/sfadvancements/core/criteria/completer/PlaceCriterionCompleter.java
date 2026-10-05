@@ -6,18 +6,19 @@ import me.char321.sfadvancements.api.criteria.Criterion;
 import me.char321.sfadvancements.api.criteria.PlaceCriterion;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockPlaceEvent;
 
-import java.util.EnumMap;
-import java.util.HashSet;
 import java.util.Set;
 
 public class PlaceCriterionCompleter implements CriterionCompleter, Listener {
     //maybe i should made this under something but that would be kinda jank oh well
-    private EnumMap<Material, Set<PlaceCriterion>> criteria = new EnumMap<>(Material.class);
+    private final Map<Material, Set<PlaceCriterion>> criteria = new ConcurrentHashMap<>();
 
     public PlaceCriterionCompleter() {
         Bukkit.getPluginManager().registerEvents(this, SFAdvancements.instance());
@@ -51,7 +52,7 @@ public class PlaceCriterionCompleter implements CriterionCompleter, Listener {
 
         PlaceCriterion placeCriterion = (PlaceCriterion) criterion;
         Material m = placeCriterion.getItem().getType();
-        criteria.computeIfAbsent(m, k -> new HashSet<>()).add(placeCriterion);
+        criteria.computeIfAbsent(m, k -> ConcurrentHashMap.newKeySet()).add(placeCriterion);
     }
 
     @Override

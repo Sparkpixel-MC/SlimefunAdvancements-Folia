@@ -1,3 +1,15 @@
+# 每个成就的可用配置项:
+#   group: 进度组 (必填, 对应 groups.yml 中的键)
+#   parent: 父进度 (可选, 默认为所在进度组)
+#   display: 展示物品 (必填), 其 name/lore 显示在进度 GUI 中
+#   frame_type: TASK / GOAL / CHALLENGE (可选, 默认 TASK)
+#   name: 进度名称 (可选, 默认为键名), 用于公告消息
+#   description: 进度描述 (可选, 支持单个字符串或字符串列表), 用于原版进度界面和公告悬浮提示
+#               未指定时自动使用 display.name + display.lore 生成
+#   hidden: 是否隐藏 (可选)
+#   criteria: 完成条件 (必填)
+#   rewards: 奖励命令 (可选), %p% 为玩家名
+
 portable_workbench:
   group: basic
   display:
@@ -7,6 +19,7 @@ portable_workbench:
       - "使用一次便携工作台"
   frame_type: GOAL
   name: "&a[便携合成]"
+  description: "使用一次便携工作台"
   criteria:
     interact:
       name: "使用一次便携工作台"
@@ -27,6 +40,7 @@ dust:
       - "使用一次矿石粉碎机"
   frame_type: TASK
   name: "&a[变成粉末]"
+  description: "使用一次矿石粉碎机"
   criteria:
     inventory:
       name: "使用一次矿石粉碎机"
@@ -41,6 +55,7 @@ electricity:
     lore:
       - "放置一个能源调节器"
   name: "&a[电力!!!]"
+  description: "放置一个能源调节器"
   criteria:
     build:
       name: "放置一个能源调节器"
@@ -57,6 +72,7 @@ gapple_juice:
     lore:
       - "饮用金苹果汁"
   name: "&a[尝起来像陈年老酒]"
+  description: "饮用 5 次金苹果汁"
   criteria:
     consume:
       name: "饮用金苹果汁"
@@ -74,6 +90,9 @@ industrial_revolution:
       - "获得以下物品:"
       - "电力碎矿机, 电动淘金机, 电动洗矿机, 电动铸锭机"
   name: "&a[工业革命]"
+  description:
+    - "获得以下物品:"
+    - "电力碎矿机, 电动淘金机, 电动洗矿机, 电动铸锭机"
   criteria:
     oregrinder:
       name: "获得电力碎矿机"
@@ -104,6 +123,7 @@ exploding_tools:
     lore:
       - "获得爆炸镐和爆炸铲"
   name: "&a[Exploding Tools]"
+  description: "获得爆炸镐和爆炸铲"
   criteria:
     pickaxe:
       name: "获得爆炸镐"
@@ -124,6 +144,7 @@ fake_diamond:
     lore:
       - "获得一块人造钻石"
   name: "&a[人造钻石]"
+  description: "获得一块人造钻石"
   criteria:
     diamond:
       name: "获得一块人造钻石"
@@ -140,6 +161,7 @@ carbonado:
       - "获得一块黑金刚石"
   frame_type: CHALLENGER
   name: "&a[闪耀的黑色钻石]"
+  description: "获得一块黑金刚石"
   criteria:
     carbonado:
       name: "获得一块黑金刚石"
@@ -154,6 +176,7 @@ black_gold:
     lore:
       - "获得原油桶"
   name: "&a[黑色黄金]"
+  description: "获得原油桶"
   criteria:
     oil:
       name: "获得原油桶"
@@ -168,6 +191,7 @@ ender_charms:
     lore:
       - "研究末影护身符"
   name: "&a[末影的魅力]"
+  description: "研究末影护身符"
   criteria:
     research:
       name: "研究末影护身符"
@@ -182,6 +206,7 @@ who_asked:
     lore:
       - "搜索 who asked"
   name: "&a[谁问了问题?]"
+  description: "在粘液科技指南中搜索 who asked"
   criteria:
     ask:
       name: "搜索 who asked"

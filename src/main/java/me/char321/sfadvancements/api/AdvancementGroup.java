@@ -3,7 +3,7 @@ package me.char321.sfadvancements.api;
 import me.char321.sfadvancements.SFAdvancements;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.ArrayList;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 public class AdvancementGroup {
     private final ItemStack display;
     private final String frameType;
-    private List<Advancement> advancements = new ArrayList<>();
+    private final List<Advancement> advancements = new CopyOnWriteArrayList<>();
     private String id;
     private String background;
 

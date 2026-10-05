@@ -11,13 +11,13 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDeathEvent;
 
-import java.util.ArrayList;
-import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class MobKillCriterionCompleter implements CriterionCompleter, Listener {
-    private final Map<EntityType, List<MobKillCriterion>> criteria = new EnumMap<>(EntityType.class);
+    private final Map<EntityType, List<MobKillCriterion>> criteria = new ConcurrentHashMap<>();
 
     public MobKillCriterionCompleter() {
         Bukkit.getPluginManager().registerEvents(this, SFAdvancements.instance());
@@ -50,7 +50,7 @@ public class MobKillCriterionCompleter implements CriterionCompleter, Listener {
         }
 
         MobKillCriterion criterion1 = (MobKillCriterion) criterion;
-        criteria.computeIfAbsent(criterion1.getEntity(), k -> new ArrayList<>()).add(criterion1);
+        criteria.computeIfAbsent(criterion1.getEntity(), k -> new CopyOnWriteArrayList<>()).add(criterion1);
     }
 
     @Override

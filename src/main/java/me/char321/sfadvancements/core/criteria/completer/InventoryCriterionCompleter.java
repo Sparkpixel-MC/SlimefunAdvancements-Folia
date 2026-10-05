@@ -18,13 +18,13 @@ import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.EnumMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class InventoryCriterionCompleter implements CriterionCompleter, Listener {
-    private final Map<Material, Set<InventoryCriterion>> criteria = new EnumMap<>(Material.class);
+    private final Map<Material, Set<InventoryCriterion>> criteria = new ConcurrentHashMap<>();
 
     public InventoryCriterionCompleter() {
         Bukkit.getPluginManager().registerEvents(this, SFAdvancements.instance());
@@ -34,7 +34,7 @@ public class InventoryCriterionCompleter implements CriterionCompleter, Listener
     public void onInventory(EntityPickupItemEvent e) {
         Entity entity = e.getEntity();
         if (entity instanceof Player) {
-            Utils.runLater(() -> onInventory1((Player) entity), 1L);
+            Utils.runAtEntityLater(entity, () -> onInventory1((Player) entity), 1L);
         }
     }
 
@@ -74,7 +74,7 @@ public class InventoryCriterionCompleter implements CriterionCompleter, Listener
 
         InventoryCriterion criterion1 = (InventoryCriterion) criterion;
         Material m = criterion1.getItem().getType();
-        criteria.computeIfAbsent(m, k -> new HashSet<>()).add(criterion1);
+        criteria.computeIfAbsent(m, k -> ConcurrentHashMap.newKeySet()).add(criterion1);
     }
 
     @Override

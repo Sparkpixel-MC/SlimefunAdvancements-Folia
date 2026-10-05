@@ -29,15 +29,20 @@ public class Advancement {
     private final ItemStack display;
     private final String frameType;
     private final String name;
+    private final String description;
     private final boolean hidden;
     private final Criterion[] criteria;
     private final Reward[] rewards;
 
     public Advancement(NamespacedKey key, @Nullable NamespacedKey parent, AdvancementGroup group, ItemStack display, String name, boolean hidden, Criterion[] criteria, Reward[] rewards) {
-        this(key, parent, group, display, "GOAL", name, hidden, criteria, rewards);
+        this(key, parent, group, display, "GOAL", name, null, hidden, criteria, rewards);
     }
 
     public Advancement(NamespacedKey key, @Nullable NamespacedKey parent, AdvancementGroup group, ItemStack display, String frameType, String name, boolean hidden, Criterion[] criteria, Reward[] rewards) {
+        this(key, parent, group, display, frameType, name, null, hidden, criteria, rewards);
+    }
+
+    public Advancement(NamespacedKey key, @Nullable NamespacedKey parent, AdvancementGroup group, ItemStack display, String frameType, String name, @Nullable String description, boolean hidden, Criterion[] criteria, Reward[] rewards) {
         this.key = key;
         if (parent == null) {
             parent = Utils.keyOf(group.getId());
@@ -47,6 +52,7 @@ public class Advancement {
         this.display = display;
         this.frameType = frameType;
         this.name = ChatColor.translateAlternateColorCodes('&', name);
+        this.description = description == null ? null : ChatColor.translateAlternateColorCodes('&', description);
         this.hidden = hidden;
         this.criteria = criteria;
         this.rewards = rewards;
@@ -103,7 +109,14 @@ public class Advancement {
         return null;
     }
 
+    /**
+     * @return the description configured in advancements.yml, or one derived from the
+     * display item's name and lore when no explicit description is set
+     */
     public String getDescription() {
+        if (description != null) {
+            return description;
+        }
         String res = getName().replaceAll("[\\[\\]]", "");
         res += "\n";
         if (display.hasItemMeta()) {
@@ -113,6 +126,10 @@ public class Advancement {
             }
         }
         return res;
+    }
+
+    public boolean hasCustomDescription() {
+        return description != null;
     }
 
     public void register() {
@@ -163,7 +180,8 @@ public class Advancement {
         BaseComponent sub = new TextComponent(getName());
         sub.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text(getDescription())));
         component.addExtra(sub);
-        Bukkit.broadcast(component);
+        // broadcasts are a global operation
+        Utils.runSync(() -> Bukkit.broadcast(component));
     }
 
     @Override
