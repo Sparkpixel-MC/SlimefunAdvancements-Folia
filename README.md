@@ -8,7 +8,7 @@
 
 ## 下载
 
-[![构建状态（点击前往下载）](https://builds.guizhanss.com/api/badge/SlimefunGuguProject/SlimefunAdvancements/main/latest)](https://builds.guizhanss.com/SlimefunGuguProject/SlimefunAdvancements/main)
+[下载 SlimefunAdvancements](https://resources.guizhanss.com/plugin/SlimefunAdvancements)
 
 ## 配置
 
