@@ -3,8 +3,8 @@
 > A configurable advancement system for Slimefun, bringing vanilla‑style challenges and progression to your server.
 
 [![Build Status](https://builds.guizhanss.com/api/badge/SlimefunGuguProject/SlimefunAdvancements/main/latest)](https://builds.guizhanss.com/SlimefunGuguProject/SlimefunAdvancements/main)  
-[![Java 21](https://img.shields.io/badge/Java-21-blue?logo=openjdk)](https://adoptium.net/)
-[![Paper 26.2](https://img.shields.io/badge/Paper-26.2-informational?logo=paper)](https://papermc.io/)
+[![Java 25](https://img.shields.io/badge/Java-25-blue?logo=openjdk)](https://adoptium.net/)
+[![Paper 26.3](https://img.shields.io/badge/Paper-26.3-informational?logo=paper)](https://papermc.io/)
 [![Folia Ready](https://img.shields.io/badge/Folia-Compatible-brightgreen?logo=paper)](https://folia.papermc.io/) <!-- Adapted by me -->
 
 ---
@@ -21,8 +21,8 @@
 
 ## 📋 Requirements
 
-- **Java 21** (or newer) – your server JVM must meet this
-- **Paper 26.2 +** or a fork (e.g. Purpur)
+- **Java 25** (or newer) – your server JVM must meet this
+- **Paper 26.3 +** or a fork (e.g. Purpur, Folia)
 - **Slimefun** main plugin (latest stable build)
 
 > ⚠️ **Note**: Vanilla advancement injection must be called on the **main thread**. Do not trigger it from asynchronous tasks.

@@ -107,25 +107,39 @@ public class Utils {
     }
 
     /**
-     * runs the task on the global region thread
+     * runs the task on the global region thread (Folia) or the main thread (Paper)
      */
     public static void runSync(Runnable runnable) {
-        Bukkit.getGlobalRegionScheduler().run(SFAdvancements.instance(), (task) -> runnable.run());
+        if (isFolia()) {
+            Bukkit.getGlobalRegionScheduler().run(SFAdvancements.instance(), (task) -> runnable.run());
+        } else {
+            Bukkit.getScheduler().runTask(SFAdvancements.instance(), runnable);
+        }
     }
 
     /**
-     * runs the task on the global region thread after the given delay in ticks
+     * runs the task on the global region thread (Folia) or the main thread (Paper) after the given delay in ticks
      */
     public static void runLater(Runnable runnable, long delay) {
-        Bukkit.getGlobalRegionScheduler().runDelayed(SFAdvancements.instance(), (task) -> runnable.run(), delay);
+        if (isFolia()) {
+            Bukkit.getGlobalRegionScheduler().runDelayed(SFAdvancements.instance(), (task) -> runnable.run(), delay);
+        } else {
+            Bukkit.getScheduler().runTaskLater(SFAdvancements.instance(), runnable, delay);
+        }
     }
 
     /**
-     * schedules a repeating task on the global region thread; delays are in game ticks
+     * schedules a repeating task on the global region thread (Folia) or the main thread (Paper);
+     * delays are in game ticks
      */
     public static void runSyncAtFixedRate(Runnable runnable, long initialDelayTicks, long periodTicks) {
-        Bukkit.getGlobalRegionScheduler().runAtFixedRate(SFAdvancements.instance(),
-                (task) -> runnable.run(), initialDelayTicks, periodTicks);
+        if (isFolia()) {
+            Bukkit.getGlobalRegionScheduler().runAtFixedRate(SFAdvancements.instance(),
+                    (task) -> runnable.run(), initialDelayTicks, periodTicks);
+        } else {
+            Bukkit.getScheduler().runTaskTimer(SFAdvancements.instance(), runnable,
+                    initialDelayTicks, periodTicks);
+        }
     }
 
     /**

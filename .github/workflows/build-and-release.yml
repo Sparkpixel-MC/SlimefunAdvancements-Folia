@@ -117,7 +117,7 @@ jobs:
             2. Place it into your server's `plugins/` folder.
             3. Restart your server.
 
-            Requires: Slimefun, GuizhanLibPlugin. Folia 26.2 is fully supported (vanilla Paper servers are supported too).
+            Requires: Slimefun, GuizhanLibPlugin. Folia 26.3 is fully supported (vanilla Paper servers are supported too).
 
             ### 📝 Changelog
             The full changelog is auto-generated below. 👇

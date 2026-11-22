@@ -4,9 +4,9 @@ plugins {
 }
 
 group = "me.char321"
-version = "1.0.0"
+version = "1.0.1"
 
-// folia-api 26.2 ships Java 25 bytecode, so the plugin must be built with JDK 25+.
+// folia-api 26.3 ships Java 25 bytecode, so the plugin must be built with JDK 25+.
 tasks.withType<JavaCompile>().configureEach {
     options.encoding = "UTF-8"
     options.release = 25

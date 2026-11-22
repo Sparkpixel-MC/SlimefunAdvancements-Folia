@@ -102,8 +102,12 @@ public final class SFAdvancements extends JavaPlugin implements SlimefunAddon {
 
     @Override
     public void onDisable() {
-        Bukkit.getGlobalRegionScheduler().cancelTasks(this);
-        Bukkit.getAsyncScheduler().cancelTasks(this);
+        if (Utils.isFolia()) {
+            Bukkit.getGlobalRegionScheduler().cancelTasks(this);
+            Bukkit.getAsyncScheduler().cancelTasks(this);
+        } else {
+            Bukkit.getScheduler().cancelTasks(this);
+        }
         try {
             advManager.save();
         } catch (IOException e) {
